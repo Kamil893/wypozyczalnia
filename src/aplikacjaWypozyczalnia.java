@@ -400,7 +400,7 @@ public class aplikacjaWypozyczalnia {
                 case 6:
                     if (!rola.equals("admin")) break;
                     sc.nextLine();
-                    System.out.print("Podaj login użytkownika: ");
+                    System.out.print("podaj login użytkownika: ");
                     String user = sc.nextLine();
                     w.pokazUzytkownika(user);
                     break;
@@ -420,4 +420,4 @@ public class aplikacjaWypozyczalnia {
 
         } while (wybor != 0);
     }
-}   
+}
