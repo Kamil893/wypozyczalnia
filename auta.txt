@@ -1,0 +1,7 @@
+ID,Model,Marka,Skrzynia,Klasa,Miejsca,WypozyczonePrzez
+1,a,a,a,a,3,
+2,Audi,A4,Manual,C,5,
+3,d,d,d,d,4,
+4,Skoda,Octavia,Manual,C,5,
+5,BMW,X5,Automatic,SUV,5,
+6,m4,bmw,automat,m,4,
