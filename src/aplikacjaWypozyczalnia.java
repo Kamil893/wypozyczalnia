@@ -3,6 +3,10 @@ import java.io.*;
 import java.nio.file.*;
 import java.nio.charset.StandardCharsets;
 
+/**
+ * Klasa reprezentująca samochód w wypożyczalni.
+ * Zawiera dane: id, marka, model, skrzynia, klasa, miejsca oraz informacje o wypożyczeniu.
+ */
 class samochod {
     int id;
     String marka, model, skrzynia, klasa;
@@ -10,6 +14,15 @@ class samochod {
     boolean wypozyczony = false;
     String wypozyczyl = "";
 
+    /**
+     * Konstruktor samochodu.
+     * @param id Unikalne ID samochodu
+     * @param m Marka samochodu
+     * @param mo Model samochodu
+     * @param s Rodzaj skrzyni biegów
+     * @param k Klasa samochodu
+     * @param mi Liczba miejsc w samochodzie
+     */
     samochod(int id, String m, String mo, String s, String k, int mi) {
         this.id = id;
         marka = m;
@@ -19,37 +32,58 @@ class samochod {
         miejsca = mi;
     }
 
+    /**
+     * Zwraca tekstową reprezentację samochodu do wyświetlenia w menu.
+     * @return Opis auta z informacją o dostępności
+     */
     public String toString() {
         return id + ". " + marka + " " + model + " | " + skrzynia + " | " + klasa +
                 (wypozyczony ? " | WYPOŻYCZONY przez: " + wypozyczyl : " | DOSTĘPNY");
     }
 
+    /**
+     * Zwraca tekstową reprezentację samochodu do zapisania w pliku.
+     * @return Linia CSV reprezentująca samochód
+     */
     public String toFile() {
         return id + "," + model + "," + marka + "," + skrzynia + "," +
                 klasa + "," + miejsca + "," + wypozyczyl;
     }
 }
 
+/**
+ * Klasa reprezentująca użytkownika systemu.
+ * Przechowuje login, hasło, rolę oraz listę wypożyczonych samochodów.
+ */
 class Uzytkownik {
     String login;
     String haslo;
     String rola;
     List<samochod> mojeAuta = new ArrayList<>();
 
+    /**
+     * Konstruktor użytkownika.
+     * @param l Login użytkownika
+     * @param h Hasło użytkownika
+     * @param r Rola (admin/user)
+     */
     Uzytkownik(String l, String h, String r) {
         login = l;
         haslo = h;
         rola = r;
     }
 
+    /** Dodaje samochód do listy wypożyczonych aut użytkownika. */
     void dodajAuto(samochod s) {
         mojeAuta.add(s);
     }
 
+    /** Usuwa samochód z listy wypożyczonych aut użytkownika. */
     void usunAuto(samochod s) {
         mojeAuta.remove(s);
     }
 
+    /** Wyświetla listę wypożyczonych aut użytkownika. */
     void pokazMojeAuta() {
         if (mojeAuta.isEmpty()) {
             System.out.println("Brak wypożyczonych aut.");
@@ -62,9 +96,14 @@ class Uzytkownik {
     }
 }
 
+/**
+ * Klasa reprezentująca wypożyczalnię samochodów.
+ * Przechowuje listę wszystkich aut i umożliwia ich dodawanie, wypożyczanie, zwracanie, usuwanie i sortowanie.
+ */
 class wypozyczalnia {
     List<samochod> auta = new ArrayList<>();
 
+    /** Generuje nowe unikalne ID dla samochodu. */
     int generujId() {
         int max = 0;
         for (samochod s : auta) {
@@ -73,6 +112,11 @@ class wypozyczalnia {
         return max + 1;
     }
 
+    /**
+     * Znajduje samochód po jego ID.
+     * @param id ID samochodu
+     * @return samochód lub null jeśli nie istnieje
+     */
     samochod znajdzPoId(int id) {
         for (samochod s : auta) {
             if (s.id == id) return s;
@@ -80,11 +124,16 @@ class wypozyczalnia {
         return null;
     }
 
+    /**
+     * Dodaje samochód do wypożyczalni.
+     * @param s Samochód do dodania
+     */
     void dodaj(samochod s) {
         auta.add(s);
         System.out.println("Dodano!");
     }
 
+    /** Wyświetla listę dostępnych samochodów. */
     void pokaz() {
         for (samochod s : auta) {
             if (!s.wypozyczony)
@@ -92,17 +141,21 @@ class wypozyczalnia {
         }
     }
 
+    /** Wyświetla listę samochodów wypożyczonych przez użytkownika. */
     void pokazwypozyczone(Uzytkownik user) {
         if (user.mojeAuta.isEmpty()) {
             System.out.println("Brak wypożyczonych aut.");
             return;
         }
-
         for (samochod s : user.mojeAuta) {
             System.out.println(s);
         }
     }
 
+    /**
+     * Pokazuje samochody wypożyczone przez określonego użytkownika.
+     * @param user Login użytkownika
+     */
     void pokazUzytkownika(String user) {
         System.out.println("Użytkownik: " + user);
         System.out.println("Wypożyczone auta:");
@@ -119,6 +172,12 @@ class wypozyczalnia {
         }
     }
 
+    /**
+     * Wypożycza samochód użytkownikowi.
+     * @param id ID samochodu
+     * @param user Użytkownik wypożyczający
+     * @throws Exception
+     */
     void wypozycz(int id, Uzytkownik user) throws Exception {
         samochod s = znajdzPoId(id);
         if (s == null) {
@@ -136,6 +195,12 @@ class wypozyczalnia {
         }
     }
 
+    /**
+     * Zwraca samochód wypożyczony przez użytkownika.
+     * @param id ID samochodu
+     * @param user Użytkownik zwracający auto
+     * @throws Exception
+     */
     void zwroc(int id, Uzytkownik user) throws Exception {
         samochod s = znajdzPoId(id);
         if (s == null) {
@@ -153,6 +218,11 @@ class wypozyczalnia {
         }
     }
 
+    /**
+     * Usuwa samochód z wypożyczalni (jeśli nie jest wypożyczony).
+     * @param id ID samochodu
+     * @throws Exception
+     */
     void usun(int id) throws Exception {
         samochod s = znajdzPoId(id);
         if (s == null) {
@@ -168,6 +238,7 @@ class wypozyczalnia {
         System.out.println("Usunięto auto!");
     }
 
+    /** Wczytuje dane samochodów z pliku auta.txt. */
     void wczytaj() throws Exception {
         if (!Files.exists(Path.of("auta.txt"))) {
             Files.write(Path.of("auta.txt"),
@@ -186,6 +257,7 @@ class wypozyczalnia {
         }
     }
 
+    /** Zapisuje dane samochodów do pliku auta.txt. */
     void zapisz() throws Exception {
         List<String> out = new ArrayList<>();
         out.add("ID,Model,Marka,Skrzynia,Klasa,Miejsca,WypozyczonePrzez");
@@ -195,12 +267,17 @@ class wypozyczalnia {
         Files.write(Path.of("auta.txt"), out, StandardCharsets.UTF_8);
     }
 
+    /** Sortuje samochody po marce (alfabetycznie). */
     void sortuj() {
         auta.sort(Comparator.comparing(s -> s.marka.toLowerCase()));
         System.out.println("Posortowano po marce");
     }
 }
 
+/**
+ * Główna klasa aplikacji wypożyczalni.
+ * Obsługuje rejestrację, logowanie oraz menu użytkownika i admina.
+ */
 public class aplikacjaWypozyczalnia {
     public static void main(String[] args) throws Exception {
         Scanner sc = new Scanner(System.in);
@@ -343,4 +420,4 @@ public class aplikacjaWypozyczalnia {
 
         } while (wybor != 0);
     }
-}
+}   
