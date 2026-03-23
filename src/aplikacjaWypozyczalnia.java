@@ -7,7 +7,7 @@ import java.nio.charset.StandardCharsets;
  * Klasa reprezentująca samochód w wypożyczalni.
  * Zawiera dane: id, marka, model, skrzynia, klasa, miejsca oraz informacje o wypożyczeniu.
  */
-class samochod {
+class Samochod {
     int id;
     String marka, model, skrzynia, klasa;
     int miejsca;
@@ -17,25 +17,26 @@ class samochod {
     /**
      * Konstruktor samochodu.
      * @param id Unikalne ID samochodu
-     * @param m Marka samochodu
-     * @param mo Model samochodu
-     * @param s Rodzaj skrzyni biegów
-     * @param k Klasa samochodu
-     * @param mi Liczba miejsc w samochodzie
+     * @param marka Marka samochodu
+     * @param model Model samochodu
+     * @param skrzynia Rodzaj skrzyni biegów
+     * @param klasa Klasa samochodu
+     * @param miejsca Liczba miejsc w samochodzie
      */
-    samochod(int id, String m, String mo, String s, String k, int mi) {
+    Samochod(int id, String marka, String model, String skrzynia, String klasa, int miejsca) {
         this.id = id;
-        marka = m;
-        model = mo;
-        skrzynia = s;
-        klasa = k;
-        miejsca = mi;
+        this.marka = marka;
+        this.model = model;
+        this.skrzynia = skrzynia;
+        this.klasa = klasa;
+        this.miejsca = miejsca;
     }
 
     /**
      * Zwraca tekstową reprezentację samochodu do wyświetlenia w menu.
      * @return Opis auta z informacją o dostępności
      */
+    @Override
     public String toString() {
         return id + ". " + marka + " " + model + " | " + skrzynia + " | " + klasa +
                 (wypozyczony ? " | WYPOŻYCZONY przez: " + wypozyczyl : " | DOSTĘPNY");
@@ -59,38 +60,46 @@ class Uzytkownik {
     String login;
     String haslo;
     String rola;
-    List<samochod> mojeAuta = new ArrayList<>();
+    List<Samochod> mojeAuta = new ArrayList<>();
 
     /**
      * Konstruktor użytkownika.
-     * @param l Login użytkownika
-     * @param h Hasło użytkownika
-     * @param r Rola (admin/user)
+     * @param login Login użytkownika
+     * @param haslo Hasło użytkownika
+     * @param rola Rola (admin/user)
      */
-    Uzytkownik(String l, String h, String r) {
-        login = l;
-        haslo = h;
-        rola = r;
+    Uzytkownik(String login, String haslo, String rola) {
+        this.login = login;
+        this.haslo = haslo;
+        this.rola = rola;
     }
 
-    /** Dodaje samochód do listy wypożyczonych aut użytkownika. */
-    void dodajAuto(samochod s) {
+    /**
+     * Dodaje samochód do listy wypożyczonych aut użytkownika.
+     * @param s Samochód do dodania
+     */
+    void dodajAuto(Samochod s) {
         mojeAuta.add(s);
     }
 
-    /** Usuwa samochód z listy wypożyczonych aut użytkownika. */
-    void usunAuto(samochod s) {
+    /**
+     * Usuwa samochód z listy wypożyczonych aut użytkownika.
+     * @param s Samochód do usunięcia
+     */
+    void usunAuto(Samochod s) {
         mojeAuta.remove(s);
     }
 
-    /** Wyświetla listę wypożyczonych aut użytkownika. */
+    /**
+     * Wyświetla listę wypożyczonych aut użytkownika.
+     */
     void pokazMojeAuta() {
         if (mojeAuta.isEmpty()) {
             System.out.println("Brak wypożyczonych aut.");
             return;
         }
         int i = 1;
-        for (samochod s : mojeAuta) {
+        for (Samochod s : mojeAuta) {
             System.out.println(i++ + ". " + s);
         }
     }
@@ -100,13 +109,16 @@ class Uzytkownik {
  * Klasa reprezentująca wypożyczalnię samochodów.
  * Przechowuje listę wszystkich aut i umożliwia ich dodawanie, wypożyczanie, zwracanie, usuwanie i sortowanie.
  */
-class wypozyczalnia {
-    List<samochod> auta = new ArrayList<>();
+class Wypozyczalnia {
+    List<Samochod> auta = new ArrayList<>();
 
-    /** Generuje nowe unikalne ID dla samochodu. */
+    /**
+     * Generuje nowe unikalne ID dla samochodu.
+     * @return Nowe ID
+     */
     int generujId() {
         int max = 0;
-        for (samochod s : auta) {
+        for (Samochod s : auta) {
             if (s.id > max) max = s.id;
         }
         return max + 1;
@@ -115,10 +127,10 @@ class wypozyczalnia {
     /**
      * Znajduje samochód po jego ID.
      * @param id ID samochodu
-     * @return samochód lub null jeśli nie istnieje
+     * @return Samochód lub null jeśli nie istnieje
      */
-    samochod znajdzPoId(int id) {
-        for (samochod s : auta) {
+    Samochod znajdzPoId(int id) {
+        for (Samochod s : auta) {
             if (s.id == id) return s;
         }
         return null;
@@ -128,14 +140,14 @@ class wypozyczalnia {
      * Dodaje samochód do wypożyczalni.
      * @param s Samochód do dodania
      */
-    void dodaj(samochod s) {
+    void dodaj(Samochod s) {
         auta.add(s);
         System.out.println("Dodano!");
     }
 
     /** Wyświetla listę dostępnych samochodów. */
     void pokaz() {
-        for (samochod s : auta) {
+        for (Samochod s : auta) {
             if (!s.wypozyczony)
                 System.out.println(s);
         }
@@ -147,7 +159,7 @@ class wypozyczalnia {
             System.out.println("Brak wypożyczonych aut.");
             return;
         }
-        for (samochod s : user.mojeAuta) {
+        for (Samochod s : user.mojeAuta) {
             System.out.println(s);
         }
     }
@@ -161,7 +173,7 @@ class wypozyczalnia {
         System.out.println("Wypożyczone auta:");
         boolean znaleziono = false;
         int nr = 1;
-        for (samochod s : auta) {
+        for (Samochod s : auta) {
             if (s.wypozyczyl.equals(user)) {
                 System.out.println(nr++ + ". " + s);
                 znaleziono = true;
@@ -176,10 +188,10 @@ class wypozyczalnia {
      * Wypożycza samochód użytkownikowi.
      * @param id ID samochodu
      * @param user Użytkownik wypożyczający
-     * @throws Exception
+     * @throws Exception jeśli zapis do pliku się nie powiedzie
      */
     void wypozycz(int id, Uzytkownik user) throws Exception {
-        samochod s = znajdzPoId(id);
+        Samochod s = znajdzPoId(id);
         if (s == null) {
             System.out.println("Nie ma takiego auta!");
             return;
@@ -199,10 +211,10 @@ class wypozyczalnia {
      * Zwraca samochód wypożyczony przez użytkownika.
      * @param id ID samochodu
      * @param user Użytkownik zwracający auto
-     * @throws Exception
+     * @throws Exception jeśli zapis do pliku się nie powiedzie
      */
     void zwroc(int id, Uzytkownik user) throws Exception {
-        samochod s = znajdzPoId(id);
+        Samochod s = znajdzPoId(id);
         if (s == null) {
             System.out.println("Nie ma takiego auta!");
             return;
@@ -221,10 +233,10 @@ class wypozyczalnia {
     /**
      * Usuwa samochód z wypożyczalni (jeśli nie jest wypożyczony).
      * @param id ID samochodu
-     * @throws Exception
+     * @throws Exception jeśli zapis do pliku się nie powiedzie
      */
     void usun(int id) throws Exception {
-        samochod s = znajdzPoId(id);
+        Samochod s = znajdzPoId(id);
         if (s == null) {
             System.out.println("Nie ma takiego auta!");
             return;
@@ -248,7 +260,7 @@ class wypozyczalnia {
         for (int i = 1; i < linie.size(); i++) {
             String[] d = linie.get(i).split(",");
             int id = Integer.parseInt(d[0]);
-            samochod s = new samochod(id, d[2], d[1], d[3], d[4], Integer.parseInt(d[5]));
+            Samochod s = new Samochod(id, d[2], d[1], d[3], d[4], Integer.parseInt(d[5]));
             if (d.length > 6 && !d[6].equals("")) {
                 s.wypozyczony = true;
                 s.wypozyczyl = d[6];
@@ -261,7 +273,7 @@ class wypozyczalnia {
     void zapisz() throws Exception {
         List<String> out = new ArrayList<>();
         out.add("ID,Model,Marka,Skrzynia,Klasa,Miejsca,WypozyczonePrzez");
-        for (samochod s : auta) {
+        for (Samochod s : auta) {
             out.add(s.toFile());
         }
         Files.write(Path.of("auta.txt"), out, StandardCharsets.UTF_8);
@@ -279,73 +291,84 @@ class wypozyczalnia {
  * Obsługuje rejestrację, logowanie oraz menu użytkownika i admina.
  */
 public class aplikacjaWypozyczalnia {
+
     public static void main(String[] args) throws Exception {
+        new aplikacjaWypozyczalnia().start();
+    }
+
+    /** Uruchamia aplikację i obsługuje logowanie/rejestrację. */
+    void start() throws Exception {
         Scanner sc = new Scanner(System.in);
-        if (!Files.exists(Path.of("bazaDanych.txt"))) {
-            FileOutputStream fos = new FileOutputStream("bazaDanych.txt");
-            fos.close();
-        }
+        przygotujPliki();
 
         System.out.println("1. Rejestracja");
         System.out.println("2. Logowanie");
         int start = sc.nextInt();
         sc.nextLine();
 
-        if (start == 1) {
-            FileOutputStream fos = new FileOutputStream("bazaDanych.txt", true);
-            System.out.print("Login: ");
-            String login = sc.nextLine();
-            System.out.print("Hasło: ");
-            String haslo = sc.nextLine();
-            System.out.print("Rola (admin/user): ");
-            String rola = sc.nextLine();
-            String user = login + "," + haslo + "," + rola + "\n";
-            fos.write(user.getBytes(StandardCharsets.UTF_8));
-            fos.close();
-            System.out.println("Dodano użytkownika!");
+        if (start == 1) rejestracja(sc);
+
+        Uzytkownik aktualny = logowanie(sc);
+        if (aktualny == null) return;
+
+        System.out.println("Zalogowano jako: " + aktualny.rola);
+
+        Wypozyczalnia w = new Wypozyczalnia();
+        w.wczytaj();
+
+        for (Samochod s : w.auta) {
+            if (s.wypozyczyl.equals(aktualny.login)) {
+                aktualny.dodajAuto(s);
+            }
         }
 
+        menu(sc, w, aktualny);
+    }
+
+    /** Tworzy pliki bazy danych i auta, jeśli nie istnieją. */
+    void przygotujPliki() throws IOException {
+        if (!Files.exists(Path.of("bazaDanych.txt"))) Files.createFile(Path.of("bazaDanych.txt"));
+        if (!Files.exists(Path.of("auta.txt"))) Files.write(Path.of("auta.txt"),
+                List.of("ID,Model,Marka,Skrzynia,Klasa,Miejsca,WypozyczonePrzez"));
+    }
+
+    /** Rejestracja nowego użytkownika. */
+    void rejestracja(Scanner sc) throws IOException {
+        System.out.print("Login: ");
+        String login = sc.nextLine();
+        System.out.print("Hasło: ");
+        String haslo = sc.nextLine();
+        System.out.print("Rola (admin/user): ");
+        String rola = sc.nextLine();
+        String user = login + "," + haslo + "," + rola + "\n";
+        Files.write(Path.of("bazaDanych.txt"), user.getBytes(StandardCharsets.UTF_8), StandardOpenOption.APPEND);
+        System.out.println("Dodano użytkownika!");
+    }
+
+    /** Logowanie użytkownika. */
+    Uzytkownik logowanie(Scanner sc) throws IOException {
         System.out.print("Login: ");
         String login = sc.nextLine();
         System.out.print("Hasło: ");
         String haslo = sc.nextLine();
 
         List<String> lines = Files.readAllLines(Path.of("bazaDanych.txt"));
-        String rola = "";
-        boolean ok = false;
-        Uzytkownik aktualny = null;
-
         for (String line : lines) {
             String[] d = line.split(",");
-            if (d.length == 3) {
-                if (d[0].equals(login) && d[1].equals(haslo)) {
-                    ok = true;
-                    rola = d[2];
-                    aktualny = new Uzytkownik(d[0], d[1], d[2]);
-                }
+            if (d.length == 3 && d[0].equals(login) && d[1].equals(haslo)) {
+                return new Uzytkownik(d[0], d[1], d[2]);
             }
         }
+        System.out.println("Błędny login!");
+        return null;
+    }
 
-        if (!ok) {
-            System.out.println("Błędny login!");
-            return;
-        }
-
-        System.out.println("Zalogowano jako: " + rola);
-
-        wypozyczalnia w = new wypozyczalnia();
-        w.wczytaj();
-
-        for (samochod s : w.auta) {
-            if (s.wypozyczyl.equals(aktualny.login)) {
-                aktualny.dodajAuto(s);
-            }
-        }
-
+    /** Menu główne aplikacji. */
+    void menu(Scanner sc, Wypozyczalnia w, Uzytkownik user) throws Exception {
         int wybor;
         do {
             System.out.println("\nMENU");
-            if (rola.equals("admin")) {
+            if (user.rola.equals("admin")) {
                 System.out.println("1. Dodaj auto");
                 System.out.println("6. Pokaż wypożyczenia użytkownika");
                 System.out.println("7. Usuń auto");
@@ -358,66 +381,51 @@ public class aplikacjaWypozyczalnia {
             System.out.println("0. Wyjście");
 
             wybor = sc.nextInt();
+            sc.nextLine(); // czyszczenie bufora
 
             switch (wybor) {
-                case 1:
-                    if (!rola.equals("admin")) break;
-                    sc.nextLine();
-                    System.out.print("Marka: ");
-                    String m = sc.nextLine();
-                    System.out.print("Model: ");
-                    String mo = sc.nextLine();
-                    System.out.print("Skrzynia: ");
-                    String s = sc.nextLine();
-                    System.out.print("Klasa: ");
-                    String k = sc.nextLine();
-                    System.out.print("Miejsca: ");
-                    int mi = sc.nextInt();
-                    w.dodaj(new samochod(w.generujId(), m, mo, s, k, mi));
-                    w.zapisz();
-                    break;
-
-                case 2:
-                    w.pokaz();
-                    break;
-
-                case 3:
-                    w.pokaz();
-                    System.out.print("Podaj ID: ");
-                    w.wypozycz(sc.nextInt(), aktualny);
-                    break;
-
-                case 4:
-                    w.pokazwypozyczone(aktualny);
-                    System.out.print("Podaj ID: ");
-                    w.zwroc(sc.nextInt(), aktualny);
-                    break;
-
-                case 5:
-                    aktualny.pokazMojeAuta();
-                    break;
-
-                case 6:
-                    if (!rola.equals("admin")) break;
-                    sc.nextLine();
-                    System.out.print("podaj login użytkownika: ");
-                    String user = sc.nextLine();
-                    w.pokazUzytkownika(user);
-                    break;
-
-                case 7:
-                    if (!rola.equals("admin")) break;
-                    w.pokaz();
-                    System.out.print("Podaj ID auta do usunięcia: ");
-                    w.usun(sc.nextInt());
-                    break;
-
-                case 8:
-                    w.sortuj();
-                    w.pokaz();
-                    break;
+                case 1 -> { if (user.rola.equals("admin")) dodajAuto(sc, w); }
+                case 2 -> w.pokaz();
+                case 3 -> wypozyczAuto(sc, w, user);
+                case 4 -> zwrocAuto(sc, w, user);
+                case 5 -> user.pokazMojeAuta();
+                case 6 -> { if (user.rola.equals("admin")) pokazUzytkownika(sc, w); }
+                case 7 -> { if (user.rola.equals("admin")) usunAuto(sc, w); }
+                case 8 -> { w.sortuj(); w.pokaz(); }
             }
-
         } while (wybor != 0);
+    }
+
+    void dodajAuto(Scanner sc, Wypozyczalnia w) throws Exception {
+        System.out.print("Marka: "); String m = sc.nextLine();
+        System.out.print("Model: "); String mo = sc.nextLine();
+        System.out.print("Skrzynia: "); String s = sc.nextLine();
+        System.out.print("Klasa: "); String k = sc.nextLine();
+        System.out.print("Miejsca: "); int mi = sc.nextInt(); sc.nextLine();
+        w.dodaj(new Samochod(w.generujId(), m, mo, s, k, mi));
+        w.zapisz();
+    }
+
+    void wypozyczAuto(Scanner sc, Wypozyczalnia w, Uzytkownik user) throws Exception {
+        w.pokaz();
+        System.out.print("Podaj ID: "); int id = sc.nextInt(); sc.nextLine();
+        w.wypozycz(id, user);
+    }
+
+    void zwrocAuto(Scanner sc, Wypozyczalnia w, Uzytkownik user) throws Exception {
+        w.pokazwypozyczone(user);
+        System.out.print("Podaj ID: "); int id = sc.nextInt(); sc.nextLine();
+        w.zwroc(id, user);
+    }
+
+    void pokazUzytkownika(Scanner sc, Wypozyczalnia w) {
+        System.out.print("Podaj login użytkownika: "); String login = sc.nextLine();
+        w.pokazUzytkownika(login);
+    }
+
+    void usunAuto(Scanner sc, Wypozyczalnia w) throws Exception {
+        w.pokaz();
+        System.out.print("Podaj ID auta do usunięcia: "); int id = sc.nextInt(); sc.nextLine();
+        w.usun(id);
     }
 }
