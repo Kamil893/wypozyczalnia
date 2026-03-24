@@ -1,7 +1,26 @@
 ID,Model,Marka,Skrzynia,Klasa,Miejsca,WypozyczonePrzez
-1,a,a,a,a,3,
-2,Audi,A4,Manual,C,5,
-3,d,d,d,d,4,
-4,Skoda,Octavia,Manual,C,5,
-5,BMW,X5,Automatic,SUV,5,
-6,m4,bmw,automat,m,4,
+1,Corolla,Toyota,Manualna,Ekonomiczna,5,123
+2,Civic,Honda,Manualna,Ekonomiczna,5,321
+3,Focus,Ford,Automatyczna,Kompaktowa,5,123
+4,Astra,Opel,Manualna,Kompaktowa,5,123
+5,3 Series,BMW,Automatyczna,Premium,5,123
+6,C-Class,Mercedes,Automatyczna,Premium,5,
+7,Q5,Audi,Automatyczna,SUV,5,
+8,X5,BMW,Automatyczna,SUV,7,
+9,Tucson,Hyundai,Manualna,SUV,5,
+10,Clio,Renault,Manualna,Ekonomiczna,5,
+11,Octavia,Skoda,Manualna,Kompaktowa,5,
+12,Passat,Volkswagen,Automatyczna,Premium,5,
+13,Sandero,Dacia,Manualna,Ekonomiczna,5,
+14,Mustang,Ford,Automatyczna,Sportowa,4,
+15,911,Porsche,Automatyczna,Sportowa,2,
+16,Model 3,Tesla,Automatyczna,Elektryczna,5,
+17,Leaf,Nissan,Automatyczna,Elektryczna,5,
+18,XC60,Volvo,Automatyczna,SUV,5,
+19,Giulia,Alfa Romeo,Automatyczna,Premium,5,
+20,Ceed,Kia,Manualna,Kompaktowa,5,
+21,RAV4,Toyota,Automatyczna,SUV,5,
+22,A4,Audi,Manualna,Premium,5,
+23,E-Class,Mercedes,Automatyczna,Premium,5,
+24,500,Fiat,Manualna,Miejska,4,
+25,Yaris,Toyota,Manualna,Miejska,5,
