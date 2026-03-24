@@ -3,13 +3,25 @@ import java.io.*;
 import java.nio.file.*;
 import java.nio.charset.StandardCharsets;
 
+/** Enum klas samochodów */
+enum KlasaSamochodu {
+    OSOBOWE, SUV, PREMIUM, KOMPAKT
+}
+
+/** Enum skrzyni biegów */
+enum SkrzyniaBiegow {
+    MANUALNA, AUTOMATYCZNA
+}
+
 /**
  * Klasa reprezentująca samochód w wypożyczalni.
  * Przechowuje dane auta oraz jego status wypożyczenia.
  */
 class Samochod {
     int id;
-    String marka, model, skrzynia, klasa;
+    String marka, model;
+    SkrzyniaBiegow skrzynia;
+    KlasaSamochodu klasa;
     int miejsca;
     boolean wypozyczony = false;
     String wypozyczyl = "";
@@ -23,7 +35,7 @@ class Samochod {
      * @param klasa klasa auta
      * @param miejsca liczba miejsc
      */
-    Samochod(int id, String marka, String model, String skrzynia, String klasa, int miejsca) {
+    Samochod(int id, String marka, String model, SkrzyniaBiegow skrzynia, KlasaSamochodu klasa, int miejsca) {
         this.id = id;
         this.marka = marka;
         this.model = model;
@@ -46,8 +58,8 @@ class Samochod {
      * @return linia CSV
      */
     public String toFile() {
-        return id + "," + model + "," + marka + "," + skrzynia + "," +
-                klasa + "," + miejsca + "," + wypozyczyl;
+        return id + "," + model + "," + marka + "," + skrzynia.name() + "," +
+                klasa.name() + "," + miejsca + "," + wypozyczyl;
     }
 }
 
@@ -58,37 +70,20 @@ class Uzytkownik {
     String login, haslo, rola;
     List<Samochod> mojeAuta = new ArrayList<>();
 
-    /**
-     * Konstruktor użytkownika.
-     * @param login login
-     * @param haslo hasło
-     * @param rola rola (admin/user)
-     */
     Uzytkownik(String login, String haslo, String rola) {
         this.login = login;
         this.haslo = haslo;
         this.rola = rola;
     }
 
-    /**
-     * Dodaje auto do listy użytkownika.
-     * @param s samochód
-     */
     void dodajAuto(Samochod s) {
         mojeAuta.add(s);
     }
 
-    /**
-     * Usuwa auto z listy użytkownika.
-     * @param s samochód
-     */
     void usunAuto(Samochod s) {
         mojeAuta.remove(s);
     }
 
-    /**
-     * Wyświetla auta użytkownika.
-     */
     void pokazMojeAuta() {
         if (mojeAuta.isEmpty()) {
             System.out.println("Brak wypożyczonych aut.");
@@ -104,55 +99,33 @@ class Uzytkownik {
 class Wypozyczalnia {
     List<Samochod> auta = new ArrayList<>();
 
-    /**
-     * Generuje nowe ID auta.
-     * @return nowe ID
-     */
     int generujId() {
         int max = 0;
         for (Samochod s : auta) if (s.id > max) max = s.id;
         return max + 1;
     }
 
-    /**
-     * Szuka auta po ID.
-     * @param id ID auta
-     * @return samochód lub null
-     */
     Samochod znajdzPoId(int id) {
         for (Samochod s : auta)
             if (s.id == id) return s;
         return null;
     }
 
-    /**
-     * Dodaje auto.
-     * @param s samochód
-     */
     void dodaj(Samochod s) {
         auta.add(s);
         System.out.println("Dodano!");
     }
 
-    /** Wyświetla dostępne auta. */
     void pokaz() {
         for (Samochod s : auta)
             if (!s.wypozyczony) System.out.println(s);
     }
 
-    /**
-     * Wyświetla auta użytkownika.
-     * @param user użytkownik
-     */
     void pokazwypozyczone(Uzytkownik user) {
         for (Samochod s : user.mojeAuta)
             System.out.println(s);
     }
 
-    /**
-     * Pokazuje auta danego użytkownika.
-     * @param user login użytkownika
-     */
     void pokazUzytkownika(String user) {
         boolean found = false;
         for (Samochod s : auta) {
@@ -164,9 +137,6 @@ class Wypozyczalnia {
         if (!found) System.out.println("Brak wypożyczonych aut.");
     }
 
-    /**
-     * Wypożycza auto.
-     */
     void wypozycz(int id, Uzytkownik user) throws Exception {
         Samochod s = znajdzPoId(id);
         if (s != null && !s.wypozyczony) {
@@ -180,9 +150,6 @@ class Wypozyczalnia {
         }
     }
 
-    /**
-     * Zwraca auto.
-     */
     void zwroc(int id, Uzytkownik user) throws Exception {
         Samochod s = znajdzPoId(id);
         if (s != null && s.wypozyczyl.equals(user.login)) {
@@ -194,9 +161,6 @@ class Wypozyczalnia {
         }
     }
 
-    /**
-     * Usuwa auto.
-     */
     void usun(int id) throws Exception {
         Samochod s = znajdzPoId(id);
         if (s != null && !s.wypozyczony) {
@@ -215,7 +179,16 @@ class Wypozyczalnia {
         List<String> lines = Files.readAllLines(Path.of("auta.txt"));
         for (int i = 1; i < lines.size(); i++) {
             String[] d = lines.get(i).split(",");
-            Samochod s = new Samochod(Integer.parseInt(d[0]), d[2], d[1], d[3], d[4], Integer.parseInt(d[5]));
+
+            Samochod s = new Samochod(
+                    Integer.parseInt(d[0]),
+                    d[2],
+                    d[1],
+                    SkrzyniaBiegow.valueOf(d[3]),
+                    KlasaSamochodu.valueOf(d[4]),
+                    Integer.parseInt(d[5])
+            );
+
             if (d.length > 6 && !d[6].isEmpty()) {
                 s.wypozyczony = true;
                 s.wypozyczyl = d[6];
@@ -224,7 +197,6 @@ class Wypozyczalnia {
         }
     }
 
-    /** Zapisuje auta do pliku. */
     void zapisz() throws Exception {
         List<String> out = new ArrayList<>();
         out.add("ID,Model,Marka,Skrzynia,Klasa,Miejsca,WypozyczonePrzez");
@@ -232,26 +204,22 @@ class Wypozyczalnia {
         Files.write(Path.of("auta.txt"), out, StandardCharsets.UTF_8);
     }
 
-    /** Sortuje auta po marce. */
     void sortuj() {
         auta.sort(Comparator.comparing(s -> s.marka.toLowerCase()));
     }
 
-    /** Filtrowanie po klasie. */
     void filtrujPoKlasie(String klasa) {
         for (Samochod s : auta)
-            if (s.klasa.equalsIgnoreCase(klasa))
+            if (s.klasa.name().equalsIgnoreCase(klasa))
                 System.out.println(s);
     }
 
-    /** Filtrowanie po klasie i statusie. */
     void filtrujPoKlasieIWypozyczeniu(String klasa, boolean wypozyczone) {
         for (Samochod s : auta)
-            if (s.klasa.equalsIgnoreCase(klasa) && s.wypozyczony == wypozyczone)
+            if (s.klasa.name().equalsIgnoreCase(klasa) && s.wypozyczony == wypozyczone)
                 System.out.println(s);
     }
 
-    /** Statystyki aut. */
     void statystyki() {
         int d = 0, w = 0;
         for (Samochod s : auta)
@@ -259,11 +227,10 @@ class Wypozyczalnia {
         System.out.println("Dostępne: " + d + ", Wypożyczone: " + w);
     }
 
-    /** Liczba aut w klasie. */
     int ileSamochodowWKlasie(String klasa) {
         int c = 0;
         for (Samochod s : auta)
-            if (s.klasa.equalsIgnoreCase(klasa)) c++;
+            if (s.klasa.name().equalsIgnoreCase(klasa)) c++;
         return c;
     }
 }
@@ -277,7 +244,6 @@ public class aplikacjaWypozyczalnia {
         new aplikacjaWypozyczalnia().start();
     }
 
-    /** Start aplikacji */
     void start() throws Exception {
         Scanner sc = new Scanner(System.in);
 
@@ -302,7 +268,6 @@ public class aplikacjaWypozyczalnia {
         menu(sc, w, u);
     }
 
-    /** Rejestracja */
     void rejestracja(Scanner sc) throws IOException {
         System.out.print("Login: "); String l = sc.nextLine();
         System.out.print("Hasło: "); String h = sc.nextLine();
@@ -313,7 +278,6 @@ public class aplikacjaWypozyczalnia {
                 StandardOpenOption.APPEND);
     }
 
-    /** Logowanie */
     Uzytkownik logowanie(Scanner sc) throws IOException {
         System.out.print("Login: "); String l = sc.nextLine();
         System.out.print("Hasło: "); String h = sc.nextLine();
@@ -327,7 +291,6 @@ public class aplikacjaWypozyczalnia {
         return null;
     }
 
-    /** Menu aplikacji */
     void menu(Scanner sc, Wypozyczalnia w, Uzytkownik u) throws Exception {
         int wybor;
         do {
@@ -380,12 +343,16 @@ public class aplikacjaWypozyczalnia {
         } while (wybor != 0);
     }
 
-    /** Dodawanie auta (admin) */
     void dodajAuto(Scanner sc, Wypozyczalnia w) throws Exception {
         System.out.print("Marka: "); String m = sc.nextLine();
         System.out.print("Model: "); String mo = sc.nextLine();
-        System.out.print("Skrzynia: "); String s = sc.nextLine();
-        System.out.print("Klasa: "); String k = sc.nextLine();
+
+        System.out.print("Skrzynia (MANUALNA/AUTOMATYCZNA): ");
+        SkrzyniaBiegow s = SkrzyniaBiegow.valueOf(sc.nextLine().toUpperCase());
+
+        System.out.print("Klasa (OSOBOWE/SUV/PREMIUM/KOMPAKT): ");
+        KlasaSamochodu k = KlasaSamochodu.valueOf(sc.nextLine().toUpperCase());
+
         System.out.print("Miejsca: "); int mi = sc.nextInt(); sc.nextLine();
 
         w.dodaj(new Samochod(w.generujId(), m, mo, s, k, mi));
