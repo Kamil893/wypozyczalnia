@@ -1,3 +1,5 @@
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 import java.io.*;
 import java.time.LocalDateTime;
@@ -167,12 +169,25 @@ public class Wypozyczalnia {
             System.out.println("Nie znaleziono auta.");
             return;
         }
-        if (s.historia.isEmpty()) {
-            System.out.println("Brak historii.");
+
+        boolean maHistorie = false;
+        try {
+            // Wczytuj linia po linii
+            for (String linia : Files.readAllLines(Paths.get("historia.txt"))) {
+                String[] czesci = linia.split(",", 4);
+                if (czesci.length >= 4 && Integer.parseInt(czesci[0].trim()) == id) {
+                    System.out.println(linia);
+                    maHistorie = true;
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Błąd przy wczytywaniu historii: " + e.getMessage());
             return;
         }
-        for (String h : s.historia)
-            System.out.println(h);
+
+        if (!maHistorie) {
+            System.out.println("Brak historii dla auta o ID " + id);
+        }
     }
 
     /** Edytuje samochód (dla admina) – przy użyciu Scannera, zgodnie z menu */
