@@ -20,8 +20,9 @@ public class aplikacjaWypozyczalnia {
         if (zalogowanyUzytkownik == null) return;
 
         Wypozyczalnia wypozyczalnia = new Wypozyczalnia();
-        wypozyczalnia.wczytajZPliku();
+        wypozyczalnia.wczytajSamochodyZPliku();
 
+        // Przywrócenie samochodów użytkownika
         for (Samochod samochod : wypozyczalnia.getSamochody()) {
             if (samochod.wypozyczyl.equals(zalogowanyUzytkownik.login)) {
                 zalogowanyUzytkownik.dodajAuto(samochod);
@@ -81,12 +82,12 @@ public class aplikacjaWypozyczalnia {
                     }
 
                     case 2 -> {
-                        for (Samochod samochod : wypozyczalnia.pobierzDostepneSamochody())
+                        for (Samochod samochod : wypozyczalnia.getSamochodySerwis().pobierzDostepneSamochody())
                             System.out.println(samochod);
                     }
 
                     case 3 -> {
-                        for (Samochod samochod : wypozyczalnia.pobierzDostepneSamochody())
+                        for (Samochod samochod : wypozyczalnia.getSamochodySerwis().pobierzDostepneSamochody())
                             System.out.println(samochod);
 
                         int id = scanner.nextInt(); scanner.nextLine();
@@ -97,7 +98,7 @@ public class aplikacjaWypozyczalnia {
                         uzytkownik.pokazMojeAuta();
 
                         int id = scanner.nextInt(); scanner.nextLine();
-                        System.out.println(wypozyczalnia.zwrocAuto(id, uzytkownik));
+                        System.out.println(wypozyczalnia.zwrocSamochod(id, uzytkownik));
                     }
 
                     case 5 -> uzytkownik.pokazMojeAuta();
@@ -107,26 +108,24 @@ public class aplikacjaWypozyczalnia {
                             System.out.print("Login: ");
                             String login = scanner.nextLine();
 
-                            for (Samochod samochod : wypozyczalnia.getSamochody()) {
-                                if (samochod.wypozyczyl.equals(login))
-                                    System.out.println(samochod);
-                            }
+                            for (Samochod samochod : wypozyczalnia.getSamochodySerwis().pobierzSamochodyWypozyczonePrzez(login))
+                                System.out.println(samochod);
                         }
                     }
 
                     case 7 -> {
                         if (uzytkownik.rola.equals("admin")) {
-                            for (Samochod samochod : wypozyczalnia.pobierzDostepneSamochody())
+                            for (Samochod samochod : wypozyczalnia.getSamochodySerwis().pobierzDostepneSamochody())
                                 System.out.println(samochod);
 
                             int id = scanner.nextInt(); scanner.nextLine();
-                            System.out.println(wypozyczalnia.usun(id));
+                            System.out.println(wypozyczalnia.usunSamochod(id));
                         }
                     }
 
                     case 8 -> {
-                        wypozyczalnia.sortujAutaAlfabetycznie();
-                        for (Samochod samochod : wypozyczalnia.pobierzDostepneSamochody())
+                        wypozyczalnia.getSamochodySerwis().sortujAutaAlfabetycznie();
+                        for (Samochod samochod : wypozyczalnia.getSamochodySerwis().pobierzDostepneSamochody())
                             System.out.println(samochod);
                     }
 
@@ -134,7 +133,7 @@ public class aplikacjaWypozyczalnia {
                         System.out.print("Klasa: ");
                         String nazwaKlasy = scanner.nextLine();
 
-                        for (Samochod samochod : wypozyczalnia.filtrujPoKlasie(nazwaKlasy))
+                        for (Samochod samochod : wypozyczalnia.getSamochodySerwis().filtrujPoKlasie(nazwaKlasy))
                             System.out.println(samochod);
                     }
 
@@ -146,23 +145,23 @@ public class aplikacjaWypozyczalnia {
                         boolean czyWypozyczony = scanner.nextBoolean();
                         scanner.nextLine();
 
-                        for (Samochod samochod : wypozyczalnia.filtrujPoKlasieIWypozyczeniu(nazwaKlasy, czyWypozyczony))
+                        for (Samochod samochod : wypozyczalnia.getSamochodySerwis().filtrujPoKlasieIWypozyczeniu(nazwaKlasy, czyWypozyczony))
                             System.out.println(samochod);
                     }
 
-                    case 11 -> System.out.println(wypozyczalnia.statystyki());
+                    case 11 -> System.out.println(wypozyczalnia.getSamochodySerwis().statystyki());
 
                     case 12 -> {
                         System.out.print("Klasa: ");
                         String nazwaKlasy = scanner.nextLine();
-                        System.out.println(wypozyczalnia.ileSamochodowWKlasie(nazwaKlasy));
+                        System.out.println(wypozyczalnia.getSamochodySerwis().ileSamochodowWKlasie(nazwaKlasy));
                     }
 
                     case 13 -> {
                         System.out.print("Fraza: ");
                         String fraza = scanner.nextLine();
 
-                        for (Samochod samochod : wypozyczalnia.szukaj(fraza))
+                        for (Samochod samochod : wypozyczalnia.getSamochodySerwis().szukaj(fraza))
                             System.out.println(samochod);
                     }
 
@@ -170,7 +169,7 @@ public class aplikacjaWypozyczalnia {
                         System.out.print("ID auta: ");
                         int id = scanner.nextInt(); scanner.nextLine();
 
-                        for (String wpisHistorii : wypozyczalnia.pobierzHistorie(id))
+                        for (String wpisHistorii : wypozyczalnia.getHistoriaSerwis().pobierzHistorieSamochodu(wypozyczalnia.getSamochodySerwis().znajdzPoId(id)))
                             System.out.println(wpisHistorii);
                     }
                 }
@@ -214,7 +213,7 @@ public class aplikacjaWypozyczalnia {
 
         System.out.println(
                 wypozyczalnia.dodajSamochod(
-                        new Samochod(wypozyczalnia.generujId(), marka, model, skrzynia, klasa, liczbaMiejsc)
+                        new Samochod(wypozyczalnia.generujIdSamochodu(), marka, model, skrzynia, klasa, liczbaMiejsc)
                 )
         );
     }

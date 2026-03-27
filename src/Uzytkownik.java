@@ -1,33 +1,38 @@
 import java.util.*;
 
-/**
- * Klasa użytkownika.
- */
-class Uzytkownik {
+public class Uzytkownik {
+    public String login;
+    public String haslo;
+    public String rola;
 
-    String login, haslo, rola;
-    List<Samochod> mojeAuta = new ArrayList<>();
+    // lista samochodów wypożyczonych przez użytkownika
+    private List<Samochod> wypozyczoneSamochody = new ArrayList<>();
 
-    Uzytkownik(String login, String haslo, String rola) {
+    public Uzytkownik(String login, String haslo, String rola) {
         this.login = login;
         this.haslo = haslo;
         this.rola = rola;
     }
 
-    void dodajAuto(Samochod samochod) {
-        mojeAuta.add(samochod);
+    // dodaje samochód do listy wypożyczonych
+    public void dodajAuto(Samochod samochod) {
+        wypozyczoneSamochody.add(samochod);
     }
 
-    void usunAuto(Samochod samochod) {
-        mojeAuta.remove(samochod);
+    // usuwa samochód z listy wypożyczonych
+    public void usunAuto(Samochod samochod) {
+        wypozyczoneSamochody.remove(samochod);
     }
 
-    void pokazMojeAuta() {
-        if (mojeAuta.isEmpty()) {
-            System.out.println("Brak wypożyczonych aut.");
+    // metoda do wyświetlania samochodów użytkownika
+    public void pokazMojeAuta() {
+        if (wypozyczoneSamochody.isEmpty()) {
+            System.out.println("Nie masz żadnych aut.");
             return;
         }
-        for (Samochod samochod : mojeAuta)
+        for (Samochod samochod : wypozyczoneSamochody) {
             System.out.println(samochod);
+        }
     }
+
 }
