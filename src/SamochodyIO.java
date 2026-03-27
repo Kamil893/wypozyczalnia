@@ -3,7 +3,7 @@ import java.nio.file.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-class SamochodDAO {
+class SamochodIO {
 
     static List<Samochod> wczytaj() {
         List<Samochod> auta = new ArrayList<>();
@@ -20,7 +20,7 @@ class SamochodDAO {
             for (int i = 1; i < lines.size(); i++) {
                 String[] d = lines.get(i).split(",");
 
-                Samochod s = new Samochod(
+                Samochod samochod = new Samochod(
                         Integer.parseInt(d[0]),
                         d[2],
                         d[1],
@@ -30,15 +30,15 @@ class SamochodDAO {
                 );
 
                 if (d.length > 6 && !d[6].isEmpty()) {
-                    s.wypozyczony = true;
-                    s.wypozyczyl = d[6];
+                    samochod.wypozyczony = true;
+                    samochod.wypozyczyl = d[6];
                 }
 
-                auta.add(s);
+                auta.add(samochod);
             }
 
-        } catch (Exception e) {
-            System.out.println("Błąd IO (auta): " + e.getMessage());
+        } catch (Exception exception) {
+            System.out.println("Błąd IO (auta): " + exception.getMessage());
         }
 
         return auta;
@@ -49,12 +49,12 @@ class SamochodDAO {
             List<String> out = new ArrayList<>();
             out.add("ID,Model,Marka,Skrzynia,Klasa,Miejsca,WypozyczonePrzez");
 
-            for (Samochod s : auta) out.add(s.toFile());
+            for (Samochod samochod : auta) out.add(samochod.toFile());
 
             Files.write(Path.of("auta.txt"), out, StandardCharsets.UTF_8);
 
-        } catch (IOException e) {
-            System.out.println("Błąd IO (auta): " + e.getMessage());
+        } catch (IOException ioException) {
+            System.out.println("Błąd IO (auta): " + ioException.getMessage());
         }
     }
 }

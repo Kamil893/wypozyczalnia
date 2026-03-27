@@ -4,15 +4,15 @@ import java.util.*;
 
 class UzytkownikIO {
 
-    static void zapisz(Uzytkownik u) {
+    static void zapisz(Uzytkownik uzytkownik) {
         try {
             Files.write(
                     Path.of("bazaDanych.txt"),
-                    (u.login + "," + u.haslo + "," + u.rola + "\n").getBytes(),
+                    (uzytkownik.login + "," + uzytkownik.haslo + "," + uzytkownik.rola + "\n").getBytes(),
                     StandardOpenOption.APPEND
             );
-        } catch (IOException e) {
-            System.out.println("Błąd IO (użytkownicy): " + e.getMessage());
+        } catch (IOException ioException) {
+            System.out.println("Błąd IO (użytkownicy): " + ioException.getMessage());
         }
     }
 
@@ -24,13 +24,13 @@ class UzytkownikIO {
                 return lista;
 
             for (String line : Files.readAllLines(Path.of("bazaDanych.txt"))) {
-                String[] d = line.split(",");
-                if (d.length == 3) {
-                    lista.add(new Uzytkownik(d[0], d[1], d[2]));
+                String[] dane = line.split(",");
+                if (dane.length == 3) {
+                    lista.add(new Uzytkownik(dane[0], dane[1], dane[2]));
                 }
             }
-        } catch (IOException e) {
-            System.out.println("Błąd IO (użytkownicy): " + e.getMessage());
+        } catch (IOException ioException) {
+            System.out.println("Błąd IO (użytkownicy): " + ioException.getMessage());
         }
 
         return lista;

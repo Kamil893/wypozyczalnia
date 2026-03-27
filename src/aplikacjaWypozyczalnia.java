@@ -1,140 +1,177 @@
 import java.util.*;
 import java.io.*;
 
-/**
- * Główna klasa aplikacji wypożyczalni.
- */
 public class aplikacjaWypozyczalnia {
 
     public static void main(String[] args) throws Exception {
-        new aplikacjaWypozyczalnia().start();
+        new aplikacjaWypozyczalnia().startAplikacji();
     }
 
-    void start() throws Exception {
-        Scanner sc = new Scanner(System.in);
+    void startAplikacji() throws Exception {
+        Scanner scanner = new Scanner(System.in);
 
         System.out.println("1. Rejestracja\n2. Logowanie");
-        int wybor = sc.nextInt();
-        sc.nextLine();
+        int wybor = scanner.nextInt();
+        scanner.nextLine();
 
-        if (wybor == 1) rejestracja(sc);
+        if (wybor == 1) rejestracja(scanner);
 
-        Uzytkownik u = logowanie(sc);
-        if (u == null) return;
+        Uzytkownik zalogowanyUzytkownik = logowanie(scanner);
+        if (zalogowanyUzytkownik == null) return;
 
-        Wypozyczalnia w = new Wypozyczalnia();
-        w.wczytaj();
+        Wypozyczalnia wypozyczalnia = new Wypozyczalnia();
+        wypozyczalnia.wczytajZPliku();
 
-        // dopisanie aut użytkownika po wczytaniu
-        for (Samochod s : w.auta)
-            if (s.wypozyczyl.equals(u.login)) u.dodajAuto(s);
+        for (Samochod samochod : wypozyczalnia.getSamochody()) {
+            if (samochod.wypozyczyl.equals(zalogowanyUzytkownik.login)) {
+                zalogowanyUzytkownik.dodajAuto(samochod);
+            }
+        }
 
-        menu(sc, w, u);
+        menu(scanner, wypozyczalnia, zalogowanyUzytkownik);
     }
 
-    void rejestracja(Scanner sc) {
-        System.out.print("Login: "); String l = sc.nextLine();
-        System.out.print("Hasło: "); String h = sc.nextLine();
-        System.out.print("Rola (admin/user): "); String r = sc.nextLine();
+    void rejestracja(Scanner scanner) {
+        System.out.print("Login: "); String login = scanner.nextLine();
+        System.out.print("Hasło: "); String haslo = scanner.nextLine();
+        System.out.print("Rola (admin/user): "); String rola = scanner.nextLine();
 
-        if (!Validator.isValidLogin(l)) {
+        if (!Validator.isValidLogin(login)) {
             System.out.println("Login musi mieć min. 3 znaki!");
             return;
         }
 
-        UzytkownikIO.zapisz(new Uzytkownik(l, h, r));
+        UzytkownikIO.zapisz(new Uzytkownik(login, haslo, rola));
     }
 
-    Uzytkownik logowanie(Scanner sc) {
-        System.out.print("Login: "); String l = sc.nextLine();
-        System.out.print("Hasło: "); String h = sc.nextLine();
+    Uzytkownik logowanie(Scanner scanner) {
+        System.out.print("Login: "); String login = scanner.nextLine();
+        System.out.print("Hasło: "); String haslo = scanner.nextLine();
 
-        for (Uzytkownik u : UzytkownikIO.wczytaj()) {
-            if (u.login.equals(l) && u.haslo.equals(h))
-                return u;
+        for (Uzytkownik uzytkownik : UzytkownikIO.wczytaj()) {
+            if (uzytkownik.login.equals(login) && uzytkownik.haslo.equals(haslo))
+                return uzytkownik;
         }
 
         System.out.println("Błędny login!");
         return null;
     }
 
-    void menu(Scanner sc, Wypozyczalnia w, Uzytkownik u) {
+    void menu(Scanner scanner, Wypozyczalnia wypozyczalnia, Uzytkownik uzytkownik) {
         int wybor = -1;
 
         try {
             do {
-                wypiszMenu(u);
+                wypiszMenu(uzytkownik);
 
                 try {
-                    wybor = sc.nextInt();
+                    wybor = scanner.nextInt();
                 } catch (InputMismatchException e) {
                     System.out.println("Podaj liczbę!");
-                    sc.nextLine();
+                    scanner.nextLine();
                     continue;
                 }
-                sc.nextLine();
+                scanner.nextLine();
 
                 switch (wybor) {
-                    case 1 -> { if (u.rola.equals("admin")) dodajAuto(sc, w); }
-                    case 2 -> w.pokaz();
+
+                    case 1 -> {
+                        if (uzytkownik.rola.equals("admin"))
+                            dodajAuto(scanner, wypozyczalnia);
+                    }
+
+                    case 2 -> {
+                        for (Samochod samochod : wypozyczalnia.pobierzDostepneSamochody())
+                            System.out.println(samochod);
+                    }
+
                     case 3 -> {
-                        w.pokaz();
-                        int id = sc.nextInt(); sc.nextLine();
-                        w.wypozycz(id, u);
+                        for (Samochod samochod : wypozyczalnia.pobierzDostepneSamochody())
+                            System.out.println(samochod);
+
+                        int id = scanner.nextInt(); scanner.nextLine();
+                        System.out.println(wypozyczalnia.wypozyczSamochod(id, uzytkownik));
                     }
+
                     case 4 -> {
-                        w.pokazwypozyczone(u);
-                        int id = sc.nextInt(); sc.nextLine();
-                        w.zwroc(id, u);
+                        uzytkownik.pokazMojeAuta();
+
+                        int id = scanner.nextInt(); scanner.nextLine();
+                        System.out.println(wypozyczalnia.zwrocAuto(id, uzytkownik));
                     }
-                    case 5 -> u.pokazMojeAuta();
+
+                    case 5 -> uzytkownik.pokazMojeAuta();
+
                     case 6 -> {
-                        if (u.rola.equals("admin")) {
+                        if (uzytkownik.rola.equals("admin")) {
                             System.out.print("Login: ");
-                            w.pokazUzytkownika(sc.nextLine());
+                            String login = scanner.nextLine();
+
+                            for (Samochod samochod : wypozyczalnia.getSamochody()) {
+                                if (samochod.wypozyczyl.equals(login))
+                                    System.out.println(samochod);
+                            }
                         }
                     }
+
                     case 7 -> {
-                        if (u.rola.equals("admin")) {
-                            w.pokaz();
-                            int id = sc.nextInt(); sc.nextLine();
-                            w.usun(id);
+                        if (uzytkownik.rola.equals("admin")) {
+                            for (Samochod samochod : wypozyczalnia.pobierzDostepneSamochody())
+                                System.out.println(samochod);
+
+                            int id = scanner.nextInt(); scanner.nextLine();
+                            System.out.println(wypozyczalnia.usun(id));
                         }
                     }
-                    case 8 -> { w.sortuj(); w.pokaz(); }
+
+                    case 8 -> {
+                        wypozyczalnia.sortujAutaAlfabetycznie();
+                        for (Samochod samochod : wypozyczalnia.pobierzDostepneSamochody())
+                            System.out.println(samochod);
+                    }
+
                     case 9 -> {
                         System.out.print("Klasa: ");
-                        String k = sc.nextLine();
-                        w.filtrujPoKlasie(k);
+                        String nazwaKlasy = scanner.nextLine();
+
+                        for (Samochod samochod : wypozyczalnia.filtrujPoKlasie(nazwaKlasy))
+                            System.out.println(samochod);
                     }
+
                     case 10 -> {
                         System.out.print("Klasa: ");
-                        String k = sc.nextLine();
+                        String nazwaKlasy = scanner.nextLine();
+
                         System.out.print("true/false: ");
-                        boolean s = sc.nextBoolean(); sc.nextLine();
-                        w.filtrujPoKlasieIWypozyczeniu(k, s);
+                        boolean czyWypozyczony = scanner.nextBoolean();
+                        scanner.nextLine();
+
+                        for (Samochod samochod : wypozyczalnia.filtrujPoKlasieIWypozyczeniu(nazwaKlasy, czyWypozyczony))
+                            System.out.println(samochod);
                     }
-                    case 11 -> w.statystyki();
+
+                    case 11 -> System.out.println(wypozyczalnia.statystyki());
+
                     case 12 -> {
                         System.out.print("Klasa: ");
-                        String k = sc.nextLine();
-                        System.out.println(w.ileSamochodowWKlasie(k));
+                        String nazwaKlasy = scanner.nextLine();
+                        System.out.println(wypozyczalnia.ileSamochodowWKlasie(nazwaKlasy));
                     }
+
                     case 13 -> {
                         System.out.print("Fraza: ");
-                        w.szukaj(sc.nextLine());
+                        String fraza = scanner.nextLine();
+
+                        for (Samochod samochod : wypozyczalnia.szukaj(fraza))
+                            System.out.println(samochod);
                     }
+
                     case 14 -> {
                         System.out.print("ID auta: ");
-                        int id = sc.nextInt(); sc.nextLine();
-                        w.pokazHistorie(id);
-                    }
-                    case 15 -> {
-                        if (u.rola.equals("admin")) {
-                            System.out.print("ID auta: ");
-                            int id = sc.nextInt(); sc.nextLine();
-                            w.edytujAuto(id, sc);
-                        }
+                        int id = scanner.nextInt(); scanner.nextLine();
+
+                        for (String wpisHistorii : wypozyczalnia.pobierzHistorie(id))
+                            System.out.println(wpisHistorii);
                     }
                 }
 
@@ -145,14 +182,15 @@ public class aplikacjaWypozyczalnia {
         }
     }
 
-    void wypiszMenu(Uzytkownik u) {
+    void wypiszMenu(Uzytkownik uzytkownik) {
         System.out.println("\nMENU");
-        if (u.rola.equals("admin")) {
+
+        if (uzytkownik.rola.equals("admin")) {
             System.out.println("1. Dodaj auto");
             System.out.println("6. Pokaż wypożyczenia użytkownika");
             System.out.println("7. Usuń auto");
-            System.out.println("15. Edytuj auto");
         }
+
         System.out.println("2. Pokaż dostępne");
         System.out.println("3. Wypożycz");
         System.out.println("4. Zwróć");
@@ -167,14 +205,17 @@ public class aplikacjaWypozyczalnia {
         System.out.println("0. Wyjście");
     }
 
-    void dodajAuto(Scanner sc, Wypozyczalnia w) throws Exception {
-        System.out.print("Marka: "); String m = sc.nextLine();
-        System.out.print("Model: "); String mo = sc.nextLine();
-        System.out.print("Skrzynia: "); SkrzyniaBiegow s = SkrzyniaBiegow.valueOf(sc.nextLine().toUpperCase());
-        System.out.print("Klasa: "); KlasaSamochodu k = KlasaSamochodu.valueOf(sc.nextLine().toUpperCase());
-        System.out.print("Miejsca: "); int mi = sc.nextInt(); sc.nextLine();
+    void dodajAuto(Scanner scanner, Wypozyczalnia wypozyczalnia) throws Exception {
+        System.out.print("Marka: "); String marka = scanner.nextLine();
+        System.out.print("Model: "); String model = scanner.nextLine();
+        System.out.print("Skrzynia: "); SkrzyniaBiegow skrzynia = SkrzyniaBiegow.valueOf(scanner.nextLine().toUpperCase());
+        System.out.print("Klasa: "); KlasaSamochodu klasa = KlasaSamochodu.valueOf(scanner.nextLine().toUpperCase());
+        System.out.print("Miejsca: "); int liczbaMiejsc = scanner.nextInt(); scanner.nextLine();
 
-        w.dodaj(new Samochod(w.generujId(), m, mo, s, k, mi));
-        w.zapisz();
+        System.out.println(
+                wypozyczalnia.dodajSamochod(
+                        new Samochod(wypozyczalnia.generujId(), marka, model, skrzynia, klasa, liczbaMiejsc)
+                )
+        );
     }
 }

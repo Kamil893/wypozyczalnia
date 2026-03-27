@@ -14,12 +14,12 @@ class Uzytkownik {
         this.rola = rola;
     }
 
-    void dodajAuto(Samochod s) {
-        mojeAuta.add(s);
+    void dodajAuto(Samochod samochod) {
+        mojeAuta.add(samochod);
     }
 
-    void usunAuto(Samochod s) {
-        mojeAuta.remove(s);
+    void usunAuto(Samochod samochod) {
+        mojeAuta.remove(samochod);
     }
 
     void pokazMojeAuta() {
@@ -27,7 +27,7 @@ class Uzytkownik {
             System.out.println("Brak wypożyczonych aut.");
             return;
         }
-        for (Samochod s : mojeAuta)
-            System.out.println(s);
+        for (Samochod samochod : mojeAuta)
+            System.out.println(samochod);
     }
 }

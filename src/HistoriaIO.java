@@ -21,15 +21,4 @@ public class HistoriaIO {
         String linia = id_auto + "," + login + "," + typ + "," + LocalDateTime.now() + "\n";
         Files.write(PLIK_HISTORIA, linia.getBytes(), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
     }
-
-    /**
-     * Wczytuje wszystkie wpisy historii.
-     * @return lista linii z pliku historia.txt
-     */
-    public static List<String> wczytaj() throws IOException {
-        if (!Files.exists(PLIK_HISTORIA)) {
-            return new ArrayList<>();
-        }
-        return Files.readAllLines(PLIK_HISTORIA);
-    }
 }

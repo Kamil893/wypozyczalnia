@@ -66,7 +66,7 @@ public class Samochod {
      * @param klasa nowa klasa
      * @param miejsca nowa liczba miejsc
      */
-    public void edytuj(String marka, String model, SkrzyniaBiegow skrzynia, KlasaSamochodu klasa, int miejsca) {
+    public void edytujSamochod(String marka, String model, SkrzyniaBiegow skrzynia, KlasaSamochodu klasa, int miejsca) {
         if (marka != null && !marka.isEmpty()) this.marka = marka;
         if (model != null && !model.isEmpty()) this.model = model;
         if (skrzynia != null) this.skrzynia = skrzynia;

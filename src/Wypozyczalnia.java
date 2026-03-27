@@ -8,208 +8,198 @@ import java.time.LocalDateTime;
  * Klasa zarządzająca wypożyczalnią samochodów.
  */
 public class Wypozyczalnia {
-    public List<Samochod> auta = new ArrayList<>();
 
-    /** Generuje unikalne ID dla nowego samochodu */
-    public int generujId() {
-        int max = 0;
-        for (Samochod s : auta) if (s.id > max) max = s.id;
-        return max + 1;
+    private List<Samochod> samochody = new ArrayList<>();
+
+    public List<Samochod> getSamochody() {
+        return samochody;
     }
 
-    /** Szuka samochodu po ID */
+    public int generujId() {
+        int maksymalneId = 0;
+        for (Samochod samochod : samochody) {
+            if (samochod.id > maksymalneId) {
+                maksymalneId = samochod.id;
+            }
+        }
+        return maksymalneId + 1;
+    }
+
     public Samochod znajdzPoId(int id) {
-        for (Samochod s : auta)
-            if (s.id == id) return s;
+        for (Samochod samochod : samochody) {
+            if (samochod.id == id) {
+                return samochod;
+            }
+        }
         return null;
     }
 
-    /** Dodaje nowy samochód do wypożyczalni */
-    public void dodaj(Samochod s) {
-        auta.add(s);
-        System.out.println("Dodano!");
+    private Samochod pobierzAuto(int id) {
+        Samochod znalezionySamochod = znajdzPoId(id);
+        if (znalezionySamochod == null) {
+            throw new IllegalArgumentException("Nie ma auta o ID: " + id);
+        }
+        return znalezionySamochod;
     }
 
-    /** Pokazuje wszystkie dostępne samochody */
-    public void pokaz() {
-        for (Samochod s : auta)
-            if (!s.wypozyczony) System.out.println(s);
+    public String dodajSamochod(Samochod samochod) {
+        samochody.add(samochod);
+        zapiszAutaDoPliku();
+        return "Dodano auto!";
     }
 
-    /** Pokazuje samochody wypożyczone przez użytkownika */
-    public void pokazwypozyczone(Uzytkownik user) {
-        for (Samochod s : user.mojeAuta)
-            System.out.println(s);
-    }
-
-    /** Pokazuje samochody wypożyczone przez konkretnego użytkownika */
-    public void pokazUzytkownika(String user) {
-        boolean found = false;
-        for (Samochod s : auta) {
-            if (s.wypozyczyl.equals(user)) {
-                System.out.println(s);
-                found = true;
+    public List<Samochod> pobierzDostepneSamochody() {
+        List<Samochod> dostepneSamochody = new ArrayList<>();
+        for (Samochod samochod : samochody) {
+            if (!samochod.wypozyczony) {
+                dostepneSamochody.add(samochod);
             }
         }
-        if (!found) System.out.println("Brak wypożyczonych aut.");
+        return dostepneSamochody;
     }
 
-    /** Wypożycza samochód dla użytkownika */
-    public void wypozycz(int id, Uzytkownik user) throws Exception {
-        Samochod s = znajdzPoId(id);
-        if (s != null && !s.wypozyczony) {
-            s.wypozyczony = true;
-            s.wypozyczyl = user.login;
+    public String wypozyczSamochod(int id, Uzytkownik uzytkownik) throws Exception {
+        Samochod samochod = pobierzAuto(id);
 
-            // Historia w pamięci
-            s.historia.add("Wypożyczony przez: " + user.login + " | " + LocalDateTime.now());
-
-            // Historia do pliku
-            HistoriaIO.zapiszWpis(s.id, user.login, "WYPOŻYCZONE");
-
-            user.dodajAuto(s);
-            zapisz();
-            System.out.println("Wypożyczono!");
-        } else {
-            System.out.println("Auto niedostępne!");
+        if (samochod.wypozyczony) {
+            return "Auto niedostępne!";
         }
+
+        samochod.wypozyczony = true;
+        samochod.wypozyczyl = uzytkownik.login;
+
+        samochod.historia.add("Wypożyczony przez: " + uzytkownik.login + " | " + LocalDateTime.now());
+        HistoriaIO.zapiszWpis(samochod.id, uzytkownik.login, "WYPOŻYCZONE");
+
+        uzytkownik.dodajAuto(samochod);
+        zapiszAutaDoPliku();
+
+        return "Wypożyczono!";
     }
 
-    /** Zwraca samochód od użytkownika */
-    public void zwroc(int id, Uzytkownik user) throws Exception {
-        Samochod s = znajdzPoId(id);
-        if (s != null && s.wypozyczyl.equals(user.login)) {
-            s.wypozyczony = false;
+    public String zwrocAuto(int id, Uzytkownik uzytkownik) throws Exception {
+        Samochod samochod = pobierzAuto(id);
 
-            // Historia w pamięci
-            s.historia.add("Zwrócony przez: " + user.login + " | " + LocalDateTime.now());
-
-            // Historia do pliku
-            HistoriaIO.zapiszWpis(s.id, user.login, "ZWROT");
-
-            s.wypozyczyl = "";
-            user.usunAuto(s);
-            zapisz();
-            System.out.println("Zwrócono!");
+        if (!samochod.wypozyczyl.equals(uzytkownik.login)) {
+            return "To nie Twoje auto!";
         }
+
+        samochod.wypozyczony = false;
+        samochod.wypozyczyl = "";
+
+        samochod.historia.add("Zwrócony przez: " + uzytkownik.login + " | " + LocalDateTime.now());
+        HistoriaIO.zapiszWpis(samochod.id, uzytkownik.login, "ZWROT");
+
+        uzytkownik.usunAuto(samochod);
+        zapiszAutaDoPliku();
+
+        return "Zwrócono!";
     }
 
-    /** Usuwa samochód z wypożyczalni jeśli nie jest wypożyczony */
-    public void usun(int id) throws Exception {
-        Samochod s = znajdzPoId(id);
-        if (s != null && !s.wypozyczony) {
-            auta.remove(s);
-            zapisz();
-            System.out.println("Usunięto!");
+    public String usun(int id) throws Exception {
+        Samochod samochod = pobierzAuto(id);
+
+        if (samochod.wypozyczony) {
+            return "Nie można usunąć wypożyczonego auta!";
         }
+
+        samochody.remove(samochod);
+        zapiszAutaDoPliku();
+
+        return "Usunięto!";
     }
 
-    /** Wczytuje samochody z pliku */
-    public void wczytaj() {
-        auta = SamochodDAO.wczytaj();
+    public void wczytajZPliku() {
+        samochody = SamochodIO.wczytaj();
     }
 
-    /** Zapisuje samochody do pliku */
-    public void zapisz() {
-        SamochodDAO.zapisz(auta);
+    public void zapiszAutaDoPliku() {
+        SamochodIO.zapisz(samochody);
     }
 
-    /** Sortuje auta po marce alfabetycznie */
-    public void sortuj() {
-        auta.sort(Comparator.comparing(s -> s.marka.toLowerCase()));
+    public void sortujAutaAlfabetycznie() {
+        samochody.sort(Comparator.comparing(samochod -> samochod.marka.toLowerCase()));
     }
 
-    /** Filtruje auta po klasie */
-    public void filtrujPoKlasie(String klasa) {
-        for (Samochod s : auta)
-            if (s.klasa.name().equalsIgnoreCase(klasa))
-                System.out.println(s);
-    }
-
-    /** Filtruje auta po klasie i statusie wypożyczenia */
-    public void filtrujPoKlasieIWypozyczeniu(String klasa, boolean wypozyczone) {
-        for (Samochod s : auta)
-            if (s.klasa.name().equalsIgnoreCase(klasa) && s.wypozyczony == wypozyczone)
-                System.out.println(s);
-    }
-
-    /** Statystyki dostępnych i wypożyczonych aut */
-    public void statystyki() {
-        int d = 0, w = 0;
-        for (Samochod s : auta)
-            if (s.wypozyczony) w++; else d++;
-        System.out.println("Dostępne: " + d + ", Wypożyczone: " + w);
-    }
-
-    /** Ile samochodów jest w danej klasie */
-    public int ileSamochodowWKlasie(String klasa) {
-        int c = 0;
-        for (Samochod s : auta)
-            if (s.klasa.name().equalsIgnoreCase(klasa)) c++;
-        return c;
-    }
-
-    /** Szuka samochody po marce i modelu (częściowa zgodność) */
-    public void szukaj(String fraza) {
-        boolean found = false;
-        for (Samochod s : auta) {
-            if (s.marka.toLowerCase().contains(fraza.toLowerCase()) ||
-                    s.model.toLowerCase().contains(fraza.toLowerCase())) {
-                System.out.println(s);
-                found = true;
+    public List<Samochod> filtrujPoKlasie(String nazwaKlasy) {
+        List<Samochod> wynik = new ArrayList<>();
+        for (Samochod samochod : samochody) {
+            if (samochod.klasa.name().equalsIgnoreCase(nazwaKlasy)) {
+                wynik.add(samochod);
             }
         }
-        if (!found) System.out.println("Brak wyników.");
+        return wynik;
     }
 
-    /** Pokazuje historię wypożyczeń samochodu */
-    public void pokazHistorie(int id) {
-        Samochod s = znajdzPoId(id);
-        if (s == null) {
-            System.out.println("Nie znaleziono auta.");
-            return;
+    public List<Samochod> filtrujPoKlasieIWypozyczeniu(String nazwaKlasy, boolean czyWypozyczony) {
+        List<Samochod> wynik = new ArrayList<>();
+        for (Samochod samochod : samochody) {
+            if (samochod.klasa.name().equalsIgnoreCase(nazwaKlasy)
+                    && samochod.wypozyczony == czyWypozyczony) {
+                wynik.add(samochod);
+            }
+        }
+        return wynik;
+    }
+
+    public String statystyki() {
+        int liczbaDostepnych = 0;
+        int liczbaWypozyczonych = 0;
+
+        for (Samochod samochod : samochody) {
+            if (samochod.wypozyczony) {
+                liczbaWypozyczonych++;
+            } else {
+                liczbaDostepnych++;
+            }
         }
 
-        boolean maHistorie = false;
+        return "Dostępne: " + liczbaDostepnych + ", Wypożyczone: " + liczbaWypozyczonych;
+    }
+
+    public int ileSamochodowWKlasie(String nazwaKlasy) {
+        int licznik = 0;
+        for (Samochod samochod : samochody) {
+            if (samochod.klasa.name().equalsIgnoreCase(nazwaKlasy)) {
+                licznik++;
+            }
+        }
+        return licznik;
+    }
+
+    public List<Samochod> szukaj(String fraza) {
+        List<Samochod> wynik = new ArrayList<>();
+
+        for (Samochod samochod : samochody) {
+            if (samochod.marka.toLowerCase().contains(fraza.toLowerCase()) ||
+                    samochod.model.toLowerCase().contains(fraza.toLowerCase())) {
+                wynik.add(samochod);
+            }
+        }
+
+        return wynik;
+    }
+
+    public List<String> pobierzHistorie(int id) {
+        Samochod samochod = znajdzPoId(id);
+
+        if (samochod == null) {
+            throw new IllegalArgumentException("Nie znaleziono auta.");
+        }
+
+        List<String> historia = new ArrayList<>();
+
         try {
-            // Wczytuj linia po linii
             for (String linia : Files.readAllLines(Paths.get("historia.txt"))) {
                 String[] czesci = linia.split(",", 4);
                 if (czesci.length >= 4 && Integer.parseInt(czesci[0].trim()) == id) {
-                    System.out.println(linia);
-                    maHistorie = true;
+                    historia.add(linia);
                 }
             }
         } catch (IOException e) {
-            System.out.println("Błąd przy wczytywaniu historii: " + e.getMessage());
-            return;
+            throw new RuntimeException("Błąd historii: " + e.getMessage());
         }
 
-        if (!maHistorie) {
-            System.out.println("Brak historii dla auta o ID " + id);
-        }
-    }
-
-    /** Edytuje samochód (dla admina) – przy użyciu Scannera, zgodnie z menu */
-    public void edytujAuto(int id, Scanner sc) throws Exception {
-        Samochod s = znajdzPoId(id);
-        if (s == null) {
-            System.out.println("Nie znaleziono auta.");
-            return;
-        }
-        if (s.wypozyczony) {
-            System.out.println("Nie można edytować auta wypożyczonego.");
-            return;
-        }
-
-        System.out.print("Nowa marka: "); String marka = sc.nextLine();
-        System.out.print("Nowy model: "); String model = sc.nextLine();
-        System.out.print("Nowa skrzynia: "); SkrzyniaBiegow skrzynia = SkrzyniaBiegow.valueOf(sc.nextLine().toUpperCase());
-        System.out.print("Nowa klasa: "); KlasaSamochodu klasa = KlasaSamochodu.valueOf(sc.nextLine().toUpperCase());
-        System.out.print("Nowa liczba miejsc: "); int miejsca = sc.nextInt(); sc.nextLine();
-
-        s.edytuj(marka, model, skrzynia, klasa, miejsca);
-        zapisz();
-        System.out.println("Zaktualizowano auto!");
+        return historia;
     }
 }
